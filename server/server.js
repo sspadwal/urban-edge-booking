@@ -16,10 +16,10 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 export const io = new Server(httpServer, {
-    cors: {
-        origin: "*", // Allow all origins for debugging
-        methods: ["GET", "POST"],
-    },
+  cors: {
+    origin: "*", // Allow all origins for debugging
+    methods: ["GET", "POST"],
+  },
 });
 
 app.use(cors());
@@ -34,8 +34,12 @@ app.use("/api/bookings", verifyClerkToken, bookingRoutes);
 
 // User routes (protected)
 app.use("/api/users", verifyClerkToken, userRoutes);
-
+app.get("/", (req, res) => {
+  return res.send("Your Backend started");
+});
 connectDB();
 
 const port = process.env.PORT || 5000;
-httpServer.listen(port, "0.0.0.0", () => console.log(`Server running on port ${port}`));
+httpServer.listen(port, "0.0.0.0", () =>
+  console.log(`Server running on port ${port}`)
+);
