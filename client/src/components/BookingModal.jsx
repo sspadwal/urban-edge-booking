@@ -136,11 +136,11 @@ const BookingModal = ({ isOpen, onClose }) => {
                     onClick={onClose}
                 >
                     <motion.div
-                        initial={isMobile ? { y: "100%" } : { scale: 0.9, opacity: 0 }}
-                        animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
-                        exit={isMobile ? { y: "100%" } : { scale: 0.9, opacity: 0 }}
+                        initial={isMobile ? { y: "100%", scale: 0.95 } : { scale: 0.9, opacity: 0 }}
+                        animate={isMobile ? { y: 0, scale: 1 } : { scale: 1, opacity: 1 }}
+                        exit={isMobile ? { y: "100%", scale: 0.95 } : { scale: 0.9, opacity: 0 }}
                         transition={isMobile
-                            ? { type: "spring", damping: 30, stiffness: 300 }
+                            ? { type: "spring", damping: 25, stiffness: 120, mass: 0.8 }
                             : { type: "spring", damping: 25 }
                         }
                         className="relative w-full h-full sm:h-auto sm:max-w-md bg-neutral-900 sm:border border-white/10 sm:rounded-2xl shadow-2xl overflow-y-auto sm:overflow-hidden"
