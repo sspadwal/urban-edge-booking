@@ -55,12 +55,10 @@ const Navbar = () => {
     { name: "Services", path: "/services" },
     // { name: "Barbers", path: "/barbers" },
     { name: "Gallery", path: "/gallery" },
+    { name: "My Bookings", path: "/my-bookings" },
     { name: "Contact", path: "/contact" },
   ];
 
-  if (isSignedIn) {
-    navItems.push({ name: "My Bookings", path: "/my-bookings" });
-  }
 
   if (isSignedIn && user?.primaryEmailAddress?.emailAddress === import.meta.env.VITE_ADMIN_EMAIL) {
     navItems.push({ name: "Admin", path: "/admin" });
