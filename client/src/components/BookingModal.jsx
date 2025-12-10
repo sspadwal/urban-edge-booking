@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Phone, Scissors, User } from "lucide-react"; // Import User icon
 import { useAuth } from "@clerk/clerk-react"; // Removed SignInButton
 import { useServices } from "../context/ServiceContext";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 const BookingModal = ({ isOpen, onClose }) => {
     const { isSignedIn, getToken } = useAuth();
     const { services } = useServices();
+    const isMobile = useMediaQuery("(max-width: 640px)");
     const [availableSlots, setAvailableSlots] = useState([]);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -134,10 +136,13 @@ const BookingModal = ({ isOpen, onClose }) => {
                     onClick={onClose}
                 >
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: "100%" }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: "100%" }}
-                        transition={{ type: "spring", damping: 25 }}
+                        initial={isMobile ? { y: "100%" } : { scale: 0.9, opacity: 0 }}
+                        animate={isMobile ? { y: 0 } : { scale: 1, opacity: 1 }}
+                        exit={isMobile ? { y: "100%" } : { scale: 0.9, opacity: 0 }}
+                        transition={isMobile
+                            ? { type: "spring", damping: 30, stiffness: 300 }
+                            : { type: "spring", damping: 25 }
+                        }
                         className="relative w-full h-full sm:h-auto sm:max-w-md bg-neutral-900 sm:border border-white/10 sm:rounded-2xl shadow-2xl overflow-y-auto sm:overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                     >
