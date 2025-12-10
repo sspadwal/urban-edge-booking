@@ -46,9 +46,7 @@ export default function App() {
                 <Route path="book" element={
                   <ProtectedRoute><Booking /></ProtectedRoute>
                 } />
-                <Route path="my-bookings" element={
-                  <ProtectedRoute><MyBookings /></ProtectedRoute>
-                } />
+                <Route path="my-bookings" element={<MyBookings />} />
 
                 {/* Admin Routes */}
                 <Route path="admin" element={
