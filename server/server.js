@@ -30,7 +30,7 @@ app.use("/api/services", serviceRoutes);
 app.get("/api/bookings/available", getAvailableSlots); // Public endpoint for available slots
 
 // Protected routes
-app.use("/api/bookings", verifyClerkToken, bookingRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // User routes (protected)
 app.use("/api/users", verifyClerkToken, userRoutes);

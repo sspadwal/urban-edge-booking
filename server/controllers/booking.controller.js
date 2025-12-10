@@ -5,13 +5,20 @@ import { clerkClient } from "../middleware/auth.middleware.js";
 import { io } from "../server.js";
 export const createBooking = async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    console.log("Creating booking for userId:", userId);
-    const { serviceId, date, startTime, phone } = req.body;
+    const userId = req.auth?.userId; // Check if auth exists
+    console.log("Creating booking. Authenticated User:", userId ? "Yes" : "No");
 
+    const { serviceId, date, startTime, phone, customerName } = req.body;
+
+    // Basic Validation
     if (!serviceId || !date || !startTime || !phone) {
-      console.log("Missing fields");
-      return res.status(400).json({ message: "All fields are required" });
+      console.log("Missing common fields");
+      return res.status(400).json({ message: "Service, Date, Time, and Phone are required" });
+    }
+
+    // Guest Validation: If not logged in, Name is required
+    if (!userId && !customerName) {
+      return res.status(400).json({ message: "Name is required for guest bookings" });
     }
 
     // Input Sanitization
@@ -31,26 +38,34 @@ export const createBooking = async (req, res) => {
     if (bookingDateTime < new Date()) {
       return res.status(400).json({ message: "Cannot book appointments in the past" });
     }
-    let user = await User.findOne({ clerkId: userId });
 
-    if (!user) {
-      try {
-        const clerkUser = await clerkClient.users.getUser(userId);
-        const email = clerkUser.emailAddresses[0]?.emailAddress;
-        const username = clerkUser.firstName || clerkUser.username || "Unknown";
+    let user = null;
+    let finalCustomerName = customerName;
 
-        user = await User.create({
-          clerkId: userId,
-          username,
-          email,
-          phone,
-          role: "user",
-        });
-      } catch (clerkError) {
-        console.error("Error fetching user from Clerk:", clerkError);
-        return res.status(500).json({ message: "Failed to fetch user details", error: clerkError.message });
+    // If Authenticated: Fetch or Create User (Existing Logic)
+    if (userId) {
+      user = await User.findOne({ clerkId: userId });
+
+      if (!user) {
+        try {
+          const clerkUser = await clerkClient.users.getUser(userId);
+          const email = clerkUser.emailAddresses[0]?.emailAddress;
+          const username = clerkUser.firstName || clerkUser.username || "Unknown";
+
+          user = await User.create({
+            clerkId: userId,
+            username,
+            email,
+            phone,
+            role: "user",
+          });
+        } catch (clerkError) {
+          console.error("Error fetching user from Clerk:", clerkError);
+          return res.status(500).json({ message: "Failed to fetch user details", error: clerkError.message });
+        }
       }
     }
+
     // Fetch service to get duration
     const service = await Service.findById(serviceId);
     console.log("Service found:", service ? "Yes" : "No");
@@ -90,16 +105,24 @@ export const createBooking = async (req, res) => {
     const endMin = String(newEnd % 60).padStart(2, "0");
     const endTime = `${endHour}:${endMin}`;
 
-    // Create booking
-    const newBooking = await Booking.create({
-      userId: user._id,
+    // Create booking object
+    const bookingData = {
       serviceId,
       date,
       startTime,
       endTime,
       phone,
       status: "pending",
-    });
+    };
+
+    if (user) {
+      bookingData.userId = user._id; // Associate with user if logged in
+    } else {
+      bookingData.customerName = finalCustomerName; // Store name if guest
+    }
+
+    // Create booking
+    const newBooking = await Booking.create(bookingData);
 
     // Notify admin
     console.log("Emitting newBooking event via Socket.io");

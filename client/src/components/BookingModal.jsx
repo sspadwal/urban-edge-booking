@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Phone, Scissors, LogIn } from "lucide-react";
-import { useAuth, SignInButton } from "@clerk/clerk-react";
+import { X, Calendar, Phone, Scissors, User } from "lucide-react"; // Import User icon
+import { useAuth } from "@clerk/clerk-react"; // Removed SignInButton
 import { useServices } from "../context/ServiceContext";
 
 const BookingModal = ({ isOpen, onClose }) => {
     const { isSignedIn, getToken } = useAuth();
-    const { services } = useServices(); // Use context
-    // const [services, setServices] = useState([]); // Removed local state
+    const { services } = useServices();
     const [availableSlots, setAvailableSlots] = useState([]);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -15,18 +14,19 @@ const BookingModal = ({ isOpen, onClose }) => {
         date: "",
         startTime: "",
         phone: "",
+        customerName: "", // Added customerName
     });
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState(false);
 
-    // Fetch services on mount -> REMOVED (Handled by Context)
     useEffect(() => {
-        if (isOpen && isSignedIn) {
-            // fetchServices(); // Removed
+        if (isOpen) {
             setSuccess(false);
             setErrors({});
+            // Reset form when modal opens (optional, depends on UX preference)
+            // setFormData({ serviceId: "", date: "", startTime: "", phone: "", customerName: "" });
         }
-    }, [isOpen, isSignedIn]);
+    }, [isOpen]);
 
     // Fetch available slots when service and date are selected
     useEffect(() => {
@@ -35,18 +35,14 @@ const BookingModal = ({ isOpen, onClose }) => {
         }
     }, [formData.serviceId, formData.date]);
 
-    /* fetchServices removed */
-
     const fetchAvailableSlots = async () => {
         try {
             setLoading(true);
-            const token = await getToken();
-
+            // Public route now, no token needed for slots
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/bookings/available?serviceId=${formData.serviceId}&date=${formData.date}`,
                 {
                     headers: {
-                        "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json",
                     },
                 }
@@ -79,6 +75,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         if (!formData.date) newErrors.date = "Please select a date";
         if (!formData.startTime) newErrors.startTime = "Please select a time slot";
         if (!formData.phone) newErrors.phone = "Please enter your phone number";
+        if (!isSignedIn && !formData.customerName) newErrors.customerName = "Please enter your name"; // Name required for guests
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -87,13 +84,19 @@ const BookingModal = ({ isOpen, onClose }) => {
 
         try {
             setLoading(true);
-            const token = await getToken();
+            const headers = {
+                "Content-Type": "application/json",
+            };
+
+            // If user is signed in, attach token (Backend handles it)
+            if (isSignedIn) {
+                const token = await getToken();
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
+                headers: headers,
                 body: JSON.stringify(formData),
             });
 
@@ -101,7 +104,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                 setSuccess(true);
                 setTimeout(() => {
                     onClose();
-                    setFormData({ serviceId: "", date: "", startTime: "", phone: "" });
+                    setFormData({ serviceId: "", date: "", startTime: "", phone: "", customerName: "" });
                     setSuccess(false);
                 }, 2000);
             } else {
@@ -161,167 +164,161 @@ const BookingModal = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        {/* Content - Sign In or Form */}
-                        {!isSignedIn ? (
-                            <div className="p-8 text-center space-y-6">
-                                <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto">
-                                    <LogIn className="w-8 h-8 text-amber-500" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-2">
-                                        Sign In Required
-                                    </h3>
-                                    <p className="text-neutral-400">
-                                        Please sign in to book an appointment
-                                    </p>
-                                </div>
-                                <SignInButton mode="modal">
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-900 font-black text-lg rounded-full shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <LogIn className="w-5 h-5" />
-                                        Sign In to Continue
-                                    </motion.button>
-                                </SignInButton>
-                            </div>
-                        ) : (
-                            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                                {success && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm"
-                                    >
-                                        ✓ Booking created successfully!
-                                    </motion.div>
-                                )}
-
-                                {/* Service Selection */}
-                                <div>
-                                    <label className="block text-sm font-bold text-white mb-2">
-                                        Select Service
-                                    </label>
-                                    <div className="relative">
-                                        <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
-                                        <select
-                                            value={formData.serviceId}
-                                            onChange={(e) => handleChange("serviceId", e.target.value)}
-                                            className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white focus:border-amber-500 focus:outline-none transition-colors"
-                                        >
-                                            <option value="">Choose a service...</option>
-                                            {services.map((service) => (
-                                                <option key={service._id} value={service._id}>
-                                                    {service.name} ({service.duration} min)
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    {errors.serviceId && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.serviceId}</p>
-                                    )}
-                                </div>
-
-                                {/* Date Selection */}
-                                <div>
-                                    <label className="block text-sm font-bold text-white mb-2">
-                                        Select Date
-                                    </label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
-                                        <input
-                                            type="date"
-                                            value={formData.date}
-                                            onChange={(e) => handleChange("date", e.target.value)}
-                                            min={new Date().toISOString().split("T")[0]}
-                                            style={{ colorScheme: "dark" }}
-                                            className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white focus:border-amber-500 focus:outline-none transition-colors cursor-pointer"
-                                        />
-                                    </div>
-                                    {errors.date && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.date}</p>
-                                    )}
-                                </div>
-
-                                {/* Time Slot Selection */}
-                                <div>
-                                    <label className="block text-sm font-bold text-white mb-2">
-                                        Available Time Slots
-                                    </label>
-                                    {loading && formData.serviceId && formData.date ? (
-                                        <div className="text-center py-4 text-neutral-400">
-                                            Loading slots...
-                                        </div>
-                                    ) : availableSlots.length > 0 ? (
-                                        <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                                            {availableSlots.map((slot) => (
-                                                <button
-                                                    key={slot}
-                                                    type="button"
-                                                    onClick={() => handleChange("startTime", slot)}
-                                                    className={`py-3 sm:py-2 px-2 sm:px-3 rounded-lg text-sm font-bold transition-all ${formData.startTime === slot
-                                                        ? "bg-amber-500 text-neutral-900"
-                                                        : "bg-neutral-800 text-white hover:bg-neutral-700 border border-white/10"
-                                                        }`}
-                                                >
-                                                    {slot}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : formData.serviceId && formData.date ? (
-                                        <div className="text-center py-4 text-neutral-400 text-sm">
-                                            No available slots for this date
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-4 text-neutral-500 text-sm">
-                                            Select service and date first
-                                        </div>
-                                    )}
-                                    {errors.startTime && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.startTime}</p>
-                                    )}
-                                </div>
-
-                                {/* Phone Number */}
-                                <div>
-                                    <label className="block text-sm font-bold text-white mb-2">
-                                        Phone Number
-                                    </label>
-                                    <div className="relative">
-                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
-                                        <input
-                                            type="tel"
-                                            value={formData.phone}
-                                            onChange={(e) => handleChange("phone", e.target.value)}
-                                            placeholder="Enter your phone number"
-                                            className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:border-amber-500 focus:outline-none transition-colors"
-                                        />
-                                    </div>
-                                    {errors.phone && (
-                                        <p className="mt-1 text-xs text-red-400">{errors.phone}</p>
-                                    )}
-                                </div>
-
-                                {/* Submit Error */}
-                                {errors.submit && (
-                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-                                        {errors.submit}
-                                    </div>
-                                )}
-
-                                {/* Submit Button */}
-                                <motion.button
-                                    type="submit"
-                                    disabled={loading}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-900 font-black text-lg rounded-full shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        {/* Booking Form (Always Visible) */}
+                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                            {success && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm"
                                 >
-                                    {loading ? "Processing..." : "Confirm Booking"}
-                                </motion.button>
-                            </form>
-                        )}
+                                    ✓ Booking created successfully!
+                                </motion.div>
+                            )}
+
+                            {/* Service Selection */}
+                            <div>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Select Service
+                                </label>
+                                <div className="relative">
+                                    <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
+                                    <select
+                                        value={formData.serviceId}
+                                        onChange={(e) => handleChange("serviceId", e.target.value)}
+                                        className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white focus:border-amber-500 focus:outline-none transition-colors"
+                                    >
+                                        <option value="">Choose a service...</option>
+                                        {services.map((service) => (
+                                            <option key={service._id} value={service._id}>
+                                                {service.name} ({service.duration} min)
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {errors.serviceId && (
+                                    <p className="mt-1 text-xs text-red-400">{errors.serviceId}</p>
+                                )}
+                            </div>
+
+                            {/* Date Selection */}
+                            <div>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Select Date
+                                </label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
+                                    <input
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e) => handleChange("date", e.target.value)}
+                                        min={new Date().toISOString().split("T")[0]}
+                                        style={{ colorScheme: "dark" }}
+                                        className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white focus:border-amber-500 focus:outline-none transition-colors cursor-pointer"
+                                    />
+                                </div>
+                                {errors.date && (
+                                    <p className="mt-1 text-xs text-red-400">{errors.date}</p>
+                                )}
+                            </div>
+
+                            {/* Time Slot Selection */}
+                            <div>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Available Time Slots
+                                </label>
+                                {loading && formData.serviceId && formData.date ? (
+                                    <div className="text-center py-4 text-neutral-400">
+                                        Loading slots...
+                                    </div>
+                                ) : availableSlots.length > 0 ? (
+                                    <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                                        {availableSlots.map((slot) => (
+                                            <button
+                                                key={slot}
+                                                type="button"
+                                                onClick={() => handleChange("startTime", slot)}
+                                                className={`py-3 sm:py-2 px-2 sm:px-3 rounded-lg text-sm font-bold transition-all ${formData.startTime === slot
+                                                    ? "bg-amber-500 text-neutral-900"
+                                                    : "bg-neutral-800 text-white hover:bg-neutral-700 border border-white/10"
+                                                    }`}
+                                            >
+                                                {slot}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : formData.serviceId && formData.date ? (
+                                    <div className="text-center py-4 text-neutral-400 text-sm">
+                                        No available slots for this date
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-4 text-neutral-500 text-sm">
+                                        Select service and date first
+                                    </div>
+                                )}
+                                {errors.startTime && (
+                                    <p className="mt-1 text-xs text-red-400">{errors.startTime}</p>
+                                )}
+                            </div>
+
+                            {/* Customer Name */}
+                            <div>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Your Name
+                                </label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
+                                    <input
+                                        type="text"
+                                        value={formData.customerName}
+                                        onChange={(e) => handleChange("customerName", e.target.value)}
+                                        placeholder="Enter your name"
+                                        className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:border-amber-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+                                {errors.customerName && (
+                                    <p className="mt-1 text-xs text-red-400">{errors.customerName}</p>
+                                )}
+                            </div>
+
+                            {/* Phone Number */}
+                            <div>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Phone Number
+                                </label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
+                                    <input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => handleChange("phone", e.target.value)}
+                                        placeholder="Enter your phone number"
+                                        className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:border-amber-500 focus:outline-none transition-colors"
+                                    />
+                                </div>
+                                {errors.phone && (
+                                    <p className="mt-1 text-xs text-red-400">{errors.phone}</p>
+                                )}
+                            </div>
+
+                            {/* Submit Error */}
+                            {errors.submit && (
+                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                                    {errors.submit}
+                                </div>
+                            )}
+
+                            {/* Submit Button */}
+                            <motion.button
+                                type="submit"
+                                disabled={loading}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-900 font-black text-lg rounded-full shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? "Processing..." : "Confirm Booking"}
+                            </motion.button>
+                        </form>
                     </motion.div>
                 </motion.div>
             )}

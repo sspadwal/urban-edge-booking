@@ -133,14 +133,8 @@ const Navbar = () => {
 
             {/* Right Section - Buttons */}
             <div className="hidden xl:flex items-center gap-4">
-              {isSignedIn ? (
+              {isSignedIn && (
                 <UserButton />
-              ) : (
-                <SignInButton mode="modal">
-                  <button className="p-3 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all">
-                    <User className="w-5 h-5" />
-                  </button>
-                </SignInButton>
               )}
 
               <motion.div
@@ -264,14 +258,8 @@ const Navbar = () => {
               <div className="p-6 border-t border-white/5 space-y-6 bg-neutral-900/50">
                 <div className="flex items-center justify-between px-2">
                   <span className="text-neutral-400 font-medium text-sm">Account</span>
-                  {isSignedIn ? (
+                  {isSignedIn && (
                     <UserButton />
-                  ) : (
-                    <SignInButton mode="modal">
-                      <button className="text-white hover:text-amber-500 font-bold text-sm transition-colors">
-                        Sign In
-                      </button>
-                    </SignInButton>
                   )}
                 </div>
                 <button

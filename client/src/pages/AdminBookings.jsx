@@ -222,7 +222,7 @@ const AdminBookings = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-[60px]">
                     <div className="flex items-center gap-2 text-neutral-300">
                       <User className="w-4 h-4 text-neutral-500" />
-                      <span>{booking.userId?.username || "Unknown User"}</span>
+                      <span>{booking.customerName || booking.userId?.username || "Unknown User"}</span>
                     </div>
                     <div className="flex items-center gap-2 text-neutral-300">
                       <Phone className="w-4 h-4 text-neutral-500" />

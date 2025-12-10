@@ -15,6 +15,7 @@ const Booking = lazy(() => import("./pages/Booking"));
 const MyBookings = lazy(() => import("./pages/MyBookings"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const AdminBookings = lazy(() => import("./pages/AdminBookings"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 
 // Loading spinner
 const Loading = () => (
@@ -62,6 +63,11 @@ export default function App() {
         </Route>
 
         {/* Auth routes with different layout (no navbar) */}
+        <Route path="/admin-login" element={
+          <Suspense fallback={<Loading />}>
+            <AdminLogin />
+          </Suspense>
+        } />
       </Routes>
     </BrowserRouter>
   );
