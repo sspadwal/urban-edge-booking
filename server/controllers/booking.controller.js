@@ -133,6 +133,7 @@ export const createBooking = async (req, res) => {
 
     return res.status(201).json({
       message: "Booking created successfully",
+      booking: newBooking,
       startTime,
       endTime,
     });
@@ -277,5 +278,25 @@ export const getUserBookings = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user bookings:", error);
     return res.status(500).json({ message: "Failed to get your bookings" });
+  }
+};
+
+export const getGuestBookings = async (req, res) => {
+  try {
+    const { ids } = req.query;
+
+    if (!ids) {
+      return res.status(200).json([]);
+    }
+
+    const bookingIds = ids.split(",");
+    const bookings = await Booking.find({ _id: { $in: bookingIds } })
+      .populate("serviceId", "name duration")
+      .sort({ date: 1, startTime: 1 });
+
+    return res.status(200).json(bookings);
+  } catch (error) {
+    console.error("Error fetching guest bookings:", error);
+    return res.status(500).json({ message: "Failed to get guest bookings" });
   }
 };

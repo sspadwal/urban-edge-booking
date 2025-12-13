@@ -3,16 +3,14 @@ import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
 import { Scissors, Zap, Crown, Sparkles, User } from "lucide-react";
 
 const HeroGallery = () => {
-    const [isHovered, setIsHovered] = useState(false);
+    // const [isHovered, setIsHovered] = useState(false); // Removed hover state
     const rotation = useMotionValue(0);
 
     // Continuous rotation using animation frame
     useAnimationFrame((t, delta) => {
-        if (!isHovered) {
-            // Rotate 0.02 degrees per millisecond
-            const currentRotation = rotation.get();
-            rotation.set(currentRotation + 0.02 * delta);
-        }
+        // Rotate 0.02 degrees per millisecond
+        const currentRotation = rotation.get();
+        rotation.set(currentRotation + 0.02 * delta);
     });
 
     const items = [
@@ -61,15 +59,13 @@ const HeroGallery = () => {
     const radius = 280; // Radius of the carousel cylinder
 
     return (
-        <div className="w-full h-[500px] flex items-center justify-center perspective-[1000px] overflow-hidden">
+        <div className="w-full h-[400px] lg:h-[500px] flex items-center justify-center perspective-[1000px]">
             <motion.div
                 className="relative w-[200px] h-[300px] preserve-3d"
                 style={{
                     transformStyle: "preserve-3d",
                     rotateY: rotation
                 }}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
             >
                 {items.map((item, index) => {
                     const angle = (index / items.length) * 360;
@@ -78,7 +74,7 @@ const HeroGallery = () => {
                     return (
                         <motion.div
                             key={item.id}
-                            className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900/80 backdrop-blur-sm shadow-2xl"
+                            className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-white/10 bg-neutral-900/80 backdrop-blur-sm shadow-2xl backface-visible"
                             style={{
                                 transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
                                 transformStyle: "preserve-3d", // Ensure children can also participate if needed

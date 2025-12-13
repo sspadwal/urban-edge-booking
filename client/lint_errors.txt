@@ -1,0 +1,86 @@
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\App2.jsx
+  10:33  error  'userId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  13:11  error  'token' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\BookingModal.jsx
+    2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                           no-unused-vars
+   38:8   warning  React Hook useEffect has a missing dependency: 'fetchAvailableSlots'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  116:18  error    'error' is defined but never used                                                                                       no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\FloatingTools.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\Footer.jsx
+  3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\Hero.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\HeroGallery.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\Navbar.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\ServicesShowcase.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\components\WhyChooseUs.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\context\ServiceContext.jsx
+  5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\hooks\useMediaQuery.js
+  9:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   7 |         const media = window.matchMedia(query);
+   8 |         if (media.matches !== matches) {
+>  9 |             setMatches(media.matches);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  10 |         }
+  11 |         const listener = () => setMatches(media.matches);
+  12 |         media.addEventListener("change", listener);  react-hooks/set-state-in-effect
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\AdminBookings.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  34:6   warning  React Hook useEffect has a missing dependency: 'fetchBookings'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  56:14  error    'error' is defined but never used                                                                                 no-unused-vars
+  85:14  error    'error' is defined but never used                                                                                 no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\AdminLogin.jsx
+  3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\AdminPanel.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  13:6   warning  React Hook useEffect has a missing dependency: 'fetchServices'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  21:14  error    'error' is defined but never used                                                                                 no-unused-vars
+  54:14  error    'error' is defined but never used                                                                                 no-unused-vars
+  75:14  error    'error' is defined but never used                                                                                 no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\Barbers.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\Contact.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\Gallery.jsx
+  1:17  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\MyBookings.jsx
+   2:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  30:6   warning  React Hook useEffect has a missing dependency: 'fetchBookings'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\jaygo\OneDrive\Desktop\urban-edge-booking\client\src\pages\Services.jsx
+  4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+✖ 31 problems (27 errors, 4 warnings)
+

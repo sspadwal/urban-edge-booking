@@ -103,6 +103,17 @@ const BookingModal = ({ isOpen, onClose }) => {
             });
 
             if (response.ok) {
+                const data = await response.json();
+
+                // Store guest booking ID if not signed in
+                if (!isSignedIn && data.booking?._id) {
+                    const guestBookings = JSON.parse(localStorage.getItem('guestBookingIds') || '[]');
+                    if (!guestBookings.includes(data.booking._id)) {
+                        guestBookings.push(data.booking._id);
+                        localStorage.setItem('guestBookingIds', JSON.stringify(guestBookings));
+                    }
+                }
+
                 setSuccess(true);
                 setTimeout(() => {
                     onClose();
@@ -113,7 +124,8 @@ const BookingModal = ({ isOpen, onClose }) => {
                 const error = await response.json();
                 setErrors({ submit: error.message || "Booking failed" });
             }
-        } catch (error) {
+        } catch (err) {
+            console.error(err);
             setErrors({ submit: "Failed to create booking. Please try again." });
         } finally {
             setLoading(false);

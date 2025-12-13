@@ -24,33 +24,43 @@ const MyBookings = () => {
   });
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        let data = [];
+
+        if (isSignedIn) {
+          const token = await getToken();
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/my-bookings`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            data = await response.json();
+          }
+        } else {
+          // Guest mode: fetch from localStorage IDs
+          const guestIds = JSON.parse(localStorage.getItem('guestBookingIds') || '[]');
+          if (guestIds.length > 0) {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/guest-bookings?ids=${guestIds.join(',')}`);
+            if (response.ok) {
+              data = await response.json();
+            }
+          }
+        }
+        setBookings(data);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isLoaded) {
       fetchBookings();
     }
-  }, [isLoaded, isSignedIn]);
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings/my-bookings`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setBookings(data);
-      } else {
-        console.error("Failed to fetch bookings");
-      }
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isLoaded, isSignedIn, getToken]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -63,13 +73,7 @@ const MyBookings = () => {
     }
   };
 
-  if (!isLoaded || !isSignedIn) {
-    return (
-      <div className="min-h-screen bg-black pt-24 pb-12 flex items-center justify-center">
-        <div className="text-neutral-400">Please sign in to view your bookings</div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-black pt-30 pb-12">

@@ -6,6 +6,7 @@ import {
   getAllBookings,
   updateBookingStatus,
   getUserBookings,
+  getGuestBookings,
 } from "../controllers/booking.controller.js";
 import { verifyClerkToken, verifyAdmin } from "../middleware/auth.middleware.js";
 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 // Public route for creating booking (Auth handled inside controller if token present)
 router.post("/", createBooking);
+router.get("/guest-bookings", getGuestBookings);
 router.get("/my-bookings", getUserBookings);
 router.get("/date", getBookingsByDate); // Kept public/user-accessible if needed for availability
 router.get("/available", getAvailableSlots);
